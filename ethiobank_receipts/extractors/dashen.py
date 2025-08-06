@@ -1,48 +1,47 @@
 import re
 from datetime import datetime
 import pdfplumber
-from typing import Dict, Optional
+from concurrent.futures import ThreadPoolExecutor
+from ethiobank_receipts.download import download_pdf_from_url
 
 
-def extract_dashen_receipt(pdf_path: str) -> Dict[str, Optional[str]]:
-    """
-    Extract receipt data from Dashen Super App PDF receipts.
+def extract_dashen_receipt_data(url):
+    pdf_path = download_pdf_from_url(url, verify_ssl=False)
 
-    Args:
-        pdf_path (str): Path to downloaded PDF file.
+    # Extract text from PDF in parallel
+    def extract_page_text(page):
+        return page.extract_text()
 
-    Returns:
-        Dict[str, Optional[str]]: Extracted fields.
-    """
     with pdfplumber.open(pdf_path) as pdf:
-        text = "\n".join([page.extract_text() or "" for page in pdf.pages])
+        with ThreadPoolExecutor() as executor:
+            texts = list(executor.map(extract_page_text, pdf.pages))
+        text = "\n".join(text for text in texts if text)
 
-    def extract(pattern, group=1):
-        match = re.search(pattern, text)
-        return match.group(group).strip() if match else None
-
-    data = {
-        "sender_name": extract(r"Account Holder Name:\s*(.+?)\n"),
-        "channel": extract(r"Transaction Channel:\s*(.+?)\n"),
-        "service_type": extract(r"Service Type:\s*(.+?)\n"),
-        "narrative": extract(r"Narrative:\s*(.+?)\n"),
-        "beneficiary_name": extract(r"Beneficiary's Details\s*Account Holder Name:\s*(.+?)\n"),
-        "beneficiary_account": extract(r"Account Number:\s*(\d+)"),
-        "beneficiary_bank": extract(r"Institution Name:\s*(.+?)\n"),
-        "transfer_reference": extract(r"Transfer Reference:\s*(.+?)\n"),
-        "transaction_reference": extract(r"Transaction Ref:\s*(.+?)\n"),
-        "transaction_date": extract(r"Date:\s*(.+?)\n"),
-        "amount": extract(r"Transaction Amount\s*([\d,.]+) ETB"),
-        "total": extract(r"Total\s*([\d,.]+) ETB"),
-        "amount_in_words": extract(r"Amount in words:\s*(.+?)\n"),
+    # Precompile all regex patterns
+    patterns = {
+        "sender_name": re.compile(r"Account Holder Name:\s*(.+?)\n"),
+        "channel": re.compile(r"Transaction Channel:\s*(.+?)\n"),
+        "service_type": re.compile(r"Service Type:\s*(.+?)\n"),
+        "narrative": re.compile(r"Narrative:\s*(.+?)\n"),
+        "beneficiary_name": re.compile(r"Account Holder Name:\s*(.+?)\n"),
+        "beneficiary_account": re.compile(r"Account Number:\s*(\d+)"),
+        "beneficiary_bank": re.compile(r"Institution Name:\s*(.+?)\n"),
+        "transfer_reference": re.compile(r"Transfer Reference:\s*(.+?)\n"),
+        "transaction_reference": re.compile(r"Transaction Ref:\s*(.+?)\n"),
+        "transaction_date": re.compile(r"Date:\s*(.+?)\n"),
+        "amount": re.compile(r"Transaction Amount\s*([\d,.]+) ETB"),
+        "total": re.compile(r"Total\s*([\d,.]+) ETB"),
+        "amount_in_words": re.compile(r"Amount in words:\s*(.+?)\n")
     }
 
-    # Parse date
+    data = {key: (pattern.search(text).group(1).strip() if pattern.search(text) else None)
+            for key, pattern in patterns.items()}
+
     try:
-        data["transaction_date"] = datetime.strptime(
-            data["transaction_date"], "%b %d, %Y, %I:%M:%S %p"
-        ).isoformat()
-    except Exception:
+        dt = datetime.strptime(
+            data["transaction_date"], "%b %d, %Y, %I:%M:%S %p")
+        data["transaction_date"] = dt.isoformat()
+    except:
         pass
 
     return data
