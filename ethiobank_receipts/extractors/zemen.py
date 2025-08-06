@@ -1,66 +1,66 @@
 import re
+from datetime import datetime
 import pdfplumber
-import requests
-import tempfile
-from typing import Dict
+from concurrent.futures import ThreadPoolExecutor
+from ethiobank_receipts.download import download_pdf_from_url
 
 
-def extract_zemen_receipt_data_from_url(pdf_url: str) -> Dict[str, str]:
-    """
-    Download Zemen Bank PDF receipt and extract data.
+def extract_zemen_receipt_data(url):
+    """Optimized Zemen Bank receipt extraction for PDFs similar to Dashen"""
+    try:
+        # Download PDF with connection pooling
+        pdf_path = download_pdf_from_url(url)
 
-    Args:
-        pdf_url (str): URL to PDF.
+        # Parallel text extraction from PDF pages
+        def extract_page_text(page):
+            text = page.extract_text()
+            return text if text else ""
 
-    Returns:
-        Dict[str, str]: Extracted data.
-    """
-    response = requests.get(pdf_url, stream=True)
-    response.raise_for_status()
+        with pdfplumber.open(pdf_path) as pdf:
+            with ThreadPoolExecutor() as executor:
+                page_texts = list(executor.map(extract_page_text, pdf.pages))
+            full_text = " ".join(page_texts).replace("\n", " ")
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-        tmp_file.write(response.content)
-        tmp_path = tmp_file.name
+        # Precompiled regex patterns for Zemen's specific format
+            patterns = {
+                'Invoice No': re.compile(r'Invoice No\.?:\s*(\d+)'),
+                'Date': re.compile(r'Date[:\s]+([0-9]{1,2}-[A-Za-z]{3}-[0-9]{4})'),
+                'Payer Name': re.compile(r'Payer name:\s*([A-Z\s]+)'),
+                'Payer Account No': re.compile(r'Payer account no\.?:\s*([\d\*()X]+)'),
+                'Recipient Name': re.compile(r'Recipient name:\s*([A-Za-z\s\.]+)'),
+                'Recipient Account No': re.compile(r'Recipient account no\.?:\s*([\d\*]+)'),
+                'Reference No': re.compile(r'Reference No:\s*([A-Z0-9]+)'),
+                'Transaction Status': re.compile(r'Transaction status:\s*(\w+)'),
+                'Transaction Detail': re.compile(r'Transaction Detail\s+([A-Za-z\s\-]+)\s+ETB'),
+                'Settled Amount': re.compile(r'ATM CASH WITHDRAWAL ETB\s*([\d,]+\.\d{2})'),
+                'Service Charge': re.compile(r'Service Charge ETB\s*([\d,]+\.\d{2})'),
+                'VAT': re.compile(r'VAT 15% ETB\s*([\d,]+\.\d{2})'),
+                'Total Amount Paid': re.compile(r'Total Amount Paid ETB\s*([\d,]+\.\d{2})'),
+                'Amount in Words': re.compile(r'Total amount in word:\s*([A-Z\s\-]+CENT\(S\))')
+            }
 
-    return extract_zemen_receipt_data(tmp_path)
+        # Extract all matching data
+        result = {}
+        for field, pattern in patterns.items():
+            match = pattern.search(full_text)
+            if match:
+                value = match.group(1).strip()
+                # Format currency fields consistently
+                if any(x in field for x in ['Amount', 'Charge', 'VAT']):
+                    value = f"ETB {value}"
+                result[field] = value
 
+        # Clean and format specific fields
+        if 'Transaction Date' in result:
+            try:
+                dt = datetime.strptime(
+                    result['Transaction Date'], "%b %d, %Y, %I:%M:%S %p")
+                result['Transaction Date'] = dt.isoformat()
+            except ValueError:
+                pass
 
-def extract_zemen_receipt_data(pdf_path: str) -> Dict[str, str]:
-    """
-    Extract structured data from Zemen Bank PDF receipt.
+        return result
 
-    Args:
-        pdf_path (str): Local path to PDF.
-
-    Returns:
-        Dict[str, str]: Extracted fields.
-    """
-    with pdfplumber.open(pdf_path) as pdf:
-        text = "\n".join(page.extract_text() or "" for page in pdf.pages)
-
-    text = re.sub(r'\s+', ' ', text)  # Normalize spaces
-    data = {}
-
-    patterns = {
-        "Invoice No": r'Invoice No\.?:\s*([0-9]+)',
-        "Date": r'Date[:\s]+([0-9]{1,2}-[A-Za-z]{3}-[0-9]{4})',
-        "Payer Name": r'Payer name:\s*([A-Z\s]+)',
-        "Payer Account No": r'Payer account no\.:\s*([\d\*()X]+)',
-        "Recipient Name": r'Recipient name:\s*([A-Za-z\s\.]+)',
-        "Recipient Account No": r'Recipient account no\.:\s*([\d\*]+)',
-        "Reference No": r'Reference No:\s*([A-Z0-9]+)',
-        "Transaction Status": r'Transaction status:\s*(\w+)',
-        "Transaction Detail": r'Transaction Detail\s+([A-Za-z\s\-]+)\s+ETB',
-        "Settled Amount": r'ATM CASH WITHDRAWAL ETB\s*([\d,]+\.\d{2})',
-        "Service Charge": r'Service Charge ETB\s*([\d,]+\.\d{2})',
-        "VAT": r'VAT 15% ETB\s*([\d,]+\.\d{2})',
-        "Total Amount Paid": r'Total Amount Paid ETB\s*([\d,]+\.\d{2})',
-        "Amount in Words": r'Total amount in word:\s*([A-Z\s\-]+CENT\(S\))',
-    }
-
-    for key, pattern in patterns.items():
-        m = re.search(pattern, text)
-        if m:
-            data[key] = m.group(1).title() if "Word" in key else m.group(1)
-
-    return data
+    except Exception as e:
+        print(f"Error processing Zemen receipt: {str(e)}")
+        return None
