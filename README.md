@@ -41,11 +41,11 @@ from ethiobank_receipts import extract_receipt
 
 # Example URLs for each supported bank (replace with actual receipt URLs)
 urls = {
-    "cbe": "https://apps.cbe.com.et:100/?id=FT25211G11JQ21827223",
-    "dashen": "https://receipt.dashensuperapp.com/receipt/099WDTS2515400WH",
-    "awash": "https://awashpay.awashbank.com:8225/-E41AE0D86FFA-21XYYW",
-    "boa": "https://cs.bankofabyssinia.com/slip/?trx=FT252113TRLT13487",
-    "zemen": "https://share.zemenbank.com/rt/94497018108ATWR2520600HM/pdf"
+    "cbe": "https://apps.cbe.com.et:100/?id=FT***************",
+    "dashen": "https://receipt.dashensuperapp.com/receipt/***********",
+    "awash": "https://awashpay.awashbank.com:8225/-****************",
+    "boa": "https://cs.bankofabyssinia.com/slip/?trx=FT***********,
+    "zemen": "https://share.zemenbank.com/rt/*******************/pdf"
 }
 
 for bank, url in urls.items():
