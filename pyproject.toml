@@ -12,9 +12,9 @@ license = { text = "MIT" }
 dependencies = ["requests", "pdfplumber", "beautifulsoup4", "selenium"]
 
 urls = { 
-    "Homepage" = "https://github.com/<your-username>/ethiobank-receipts",
-    "Source" = "https://github.com/<your-username>/ethiobank-receipts",
-    "Bug Tracker" = "https://github.com/<your-username>/ethiobank-receipts/issues"
+    "Homepage" = "https://github.com/NahomAl/ethiobank_receipts",
+    "Source" = "https://github.com/NahomAl/ethiobank_receipts",
+    "Bug Tracker" = "https://github.com/NahomAl/ethiobank_receipts/issues"
 }
 
 [project.scripts]
