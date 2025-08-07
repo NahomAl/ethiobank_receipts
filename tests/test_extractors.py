@@ -9,11 +9,11 @@ def test_extract_cbe():
     assert "customer_name" in result
 
 
-# def test_extract_dashen():
-#     url = "https://receipt.dashensuperapp.com/receipt/099WDTS2515400WH"
-#     result = extract_receipt("dashen", url)
-#     assert isinstance(result, dict)
-#     assert "sender_name" in result
+def test_extract_dashen():
+    url = "https://receipt.dashensuperapp.com/receipt/099WDTS2515400WH"
+    result = extract_receipt("dashen", url)
+    assert isinstance(result, dict)
+    assert "sender_name" in result
 
 
 def test_extract_awash():
