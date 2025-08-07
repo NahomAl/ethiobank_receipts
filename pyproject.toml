@@ -5,17 +5,28 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ethiobank-receipts"
 version = "0.1.0"
-description = "Extract structured receipt data from Ethiopian bank PDFs and web pages."
-authors = [{ name="Nahom Alemu"}]
+description = "Optimized receipt extraction for Ethiopian banks using connection pooling"
 readme = "README.md"
 license = { text = "MIT" }
-dependencies = ["requests", "pdfplumber", "beautifulsoup4", "selenium"]
+requires-python = ">=3.8"
+dependencies = [
+    "requests",
+    "pdfplumber",
+    "beautifulsoup4",
+    "selenium",
+    "urllib3"
+]
+authors = [
+  { name = "Nahom Alemu" }
+]
 
-urls = { 
-    "Homepage" = "https://github.com/NahomAl/ethiobank_receipts",
-    "Source" = "https://github.com/NahomAl/ethiobank_receipts",
-    "Bug Tracker" = "https://github.com/NahomAl/ethiobank_receipts/issues"
-}
+[project.urls]
+Homepage = "https://github.com/NahomAl/ethiobank_receipts"
+Source = "https://github.com/NahomAl/ethiobank_receipts"
+"Bug Tracker" = "https://github.com/NahomAl/ethiobank_receipts/issues"
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "flake8"]
 
 [project.scripts]
 ethiobank-receipts = "ethiobank_receipts.cli:main"
