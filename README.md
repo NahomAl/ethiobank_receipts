@@ -4,7 +4,6 @@
 
 Optimized for speed and accuracy, `ethiobank-receipts` enables developers to extract structured data from digital bank receipts across major Ethiopian banks using multithreading and connection pooling.
 
----
 
 ## 🚀 Features
 
@@ -27,7 +26,6 @@ Optimized for speed and accuracy, `ethiobank-receipts` enables developers to ext
   - Easy-to-use CLI interface  
   - Built-in test suite for validation
 
----
 
 ## 📦 Installation
 
