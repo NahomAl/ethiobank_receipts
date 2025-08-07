@@ -4,7 +4,7 @@ import tempfile
 
 session = requests.Session()
 
-def download_pdf_from_url(url, verify_ssl=True):
+def download_pdf_from_url(url, verify_ssl=False):
     """Downloads a PDF from a URL and saves it to a temp file with connection pooling."""
     response = session.get(url, verify=verify_ssl)
     response.raise_for_status()

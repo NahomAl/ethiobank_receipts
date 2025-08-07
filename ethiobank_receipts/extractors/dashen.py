@@ -6,7 +6,7 @@ from ethiobank_receipts.download import download_pdf_from_url
 
 
 def extract_dashen_receipt_data(url):
-    pdf_path = download_pdf_from_url(url, verify_ssl=False)
+    pdf_path = download_pdf_from_url(url)
 
     # Extract text from PDF in parallel
     def extract_page_text(page):

@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from ethiobank_receipts.download import download_pdf_from_url
 
 def extract_cbe_receipt_info(url):
-    pdf_path = download_pdf_from_url(url, verify_ssl=True)
+    pdf_path = download_pdf_from_url(url)
 
     # Use parallel processing for PDF text extraction if it's a multi-page document
     def extract_page_text(page):
