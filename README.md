@@ -33,3 +33,26 @@ Install via pip:
 
 ```bash
 pip install ethiobank-receipts
+```
+## 📖 Usage Example
+```python
+
+from ethiobank_receipts import extract_receipt
+
+# Example URLs for each supported bank (replace with actual receipt URLs)
+urls = {
+    "cbe": "https://apps.cbe.com.et:100/?id=FT25211G11JQ21827223",
+    "dashen": "https://receipt.dashensuperapp.com/receipt/099WDTS2515400WH",
+    "awash": "https://awashpay.awashbank.com:8225/-E41AE0D86FFA-21XYYW",
+    "boa": "https://cs.bankofabyssinia.com/slip/?trx=FT252113TRLT13487",
+    "zemen": "https://share.zemenbank.com/rt/94497018108ATWR2520600HM/pdf"
+}
+
+for bank, url in urls.items():
+    print(f"Extracting receipt data from {bank}...")
+    try:
+        result = extract_receipt(bank, url)
+        print(result)
+    except Exception as e:
+        print(f"Failed to extract from {bank}: {e}")
+```
