@@ -10,7 +10,6 @@ def extract_awash_receipt_data(url):
     soup = BeautifulSoup(response.content, "html.parser")
     rows = soup.select("table.info-table tr")
 
-    # Use list comprehension for faster processing
     data = {}
     for row in rows:
         cells = row.find_all("td")
