@@ -1,11 +1,9 @@
-from datetime import datetime
-import re
-import pdfplumber
 import re
 import pdfplumber
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from ethiobank_receipts.download import download_pdf_from_url
+
 
 def extract_cbe_receipt_info(url):
     pdf_path = download_pdf_from_url(url)
@@ -41,10 +39,37 @@ def extract_cbe_receipt_info(url):
     data = {key: (pattern.search(full_text).group(1).strip() if pattern.search(full_text) else None)
             for key, pattern in patterns.items()}
 
-    try:
-        data["payment_date"] = datetime.strptime(
-            data["payment_date"], "%m/%d/%Y, %I:%M:%S %p").isoformat()
-    except:
-        pass
+    payment_date_str = data.get("payment_date")
+    if payment_date_str:
+        try:
+            data["payment_date"] = datetime.strptime(
+                payment_date_str, "%m/%d/%Y, %I:%M:%S %p"
+            ).isoformat()
+        except (ValueError, TypeError):
+            pass
 
     return data
+
+
+def extract_cbe_receipt_info_from_ft(ft_number: str, account_last8_or_full: str):
+    """
+    Build the CBE receipt URL from the FT number and account digits and extract receipt info.
+
+    Inputs:
+    - ft_number: e.g., "FT25211G11JQ" (case-insensitive, spaces ignored)
+    - account_last8_or_full: last eight digits (e.g., "21827223") or a full account number
+
+    Returns:
+    - Dict with extracted receipt fields (same as extract_cbe_receipt_info)
+    """
+    # Normalize FT number (remove spaces, uppercase)
+    ft = re.sub(r"\s+", "", ft_number or "").upper()
+
+    # Keep only digits from the account input and take the last 8
+    digits = re.sub(r"\D", "", account_last8_or_full or "")
+    if len(digits) < 8:
+        raise ValueError("Account number must contain at least 8 digits")
+    last8 = digits[-8:]
+
+    url = f"https://apps.cbe.com.et:100/?id={ft}{last8}"
+    return extract_cbe_receipt_info(url)

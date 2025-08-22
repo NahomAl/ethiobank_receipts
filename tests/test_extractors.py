@@ -10,7 +10,7 @@ def test_extract_cbe():
 
 
 def test_extract_dashen():
-    url = "https://receipt.dashensuperapp.com/receipt/099WDTS2515400WH"
+    url = "https://receipt.dashensuperapp.com/receipt/387ETAP2522000WK"
     result = extract_receipt("dashen", url)
     assert isinstance(result, dict)
     assert "sender_name" in result
@@ -36,3 +36,12 @@ def test_extract_zemen():
     result = extract_receipt("zemen", url)
     assert isinstance(result, dict)
     assert "Invoice No" in result
+
+
+def test_extract_cbe_from_ft_helper():
+    # Ensure the helper builds the URL correctly and delegates to the extractor
+    from ethiobank_receipts.extractors.cbe import extract_cbe_receipt_info_from_ft
+
+    result = extract_cbe_receipt_info_from_ft("FT25211G11JQ", "21827223")
+    assert isinstance(result, dict)
+    assert "customer_name" in result
