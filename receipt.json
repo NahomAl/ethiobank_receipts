@@ -1,0 +1,13 @@
+{
+  "payer_name": "ALEMU NEBEBE MEKONEN",
+  "payer_number": "2519****9144",
+  "credited_party": "Yabsera Solomon Demelew",
+  "credited_party_number": "2519****1294",
+  "status": "Completed",
+  "invoice_no": "የክፍያ ቀን/Payment date",
+  "payment_date": "የተከፈለው መጠን/Settled Amount",
+  "settled_amount": "CHQ0FJ403O",
+  "total_paid": "312.00 Birr",
+  "payment_mode": "telebirr",
+  "payment_reason": "Send Money to Registered Customer"
+}
