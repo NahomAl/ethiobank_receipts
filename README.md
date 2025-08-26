@@ -14,6 +14,7 @@ Optimized for speed and accuracy, `ethiobank-receipts` enables developers to ext
   - Awash Bank
   - Bank of Abyssinia (BOA)
   - Zemen Bank
+  - Telebirr (Ethio telecom)
 
 - ⚡ **High Performance**
 
@@ -48,7 +49,9 @@ urls = {
     "dashen": "https://receipt.dashensuperapp.com/receipt/**************",
     "awash": "https://awashpay.awashbank.com:8225/-*****************",
     "boa": "https://cs.bankofabyssinia.com/slip/?trx=****************",
-    "zemen": "https://share.zemenbank.com/rt/****************/pdf"
+  "zemen": "https://share.zemenbank.com/rt/****************/pdf",
+  # Telebirr accepts either a full URL or just the ID (e.g., CHQ0FJ403O)
+  "tele": "CHQ0FJ403O",
 }
 
 for bank, url in urls.items():
@@ -77,3 +80,33 @@ Notes:
 
 - The helper uppercases the FT and ignores spaces.
 - It will take the last 8 digits from whatever account string you pass (full or partial). If fewer than 8 digits are provided, it raises a ValueError.
+
+## 📱 Telebirr usage
+
+You can pass either a full URL or just the receipt ID:
+
+```python
+from ethiobank_receipts import extract_receipt
+
+# With full URL
+data1 = extract_receipt("tele", "https://transactioninfo.ethiotelecom.et/receipt/CHQ0FJ403O")
+
+# Or just the ID
+data2 = extract_receipt("tele", "CHQ0FJ403O")
+```
+
+## 🧰 CLI usage
+
+URL-based (all banks):
+
+```bash
+python -m ethiobank_receipts.cli cbe "https://apps.cbe.com.et:100/?id=FT25211G11JQ21827223"
+python -m ethiobank_receipts.cli dashen "https://receipt.dashensuperapp.com/receipt/387ETAP2522000WK"
+python -m ethiobank_receipts.cli tele CHQ0FJ403O    # ID also works
+```
+
+CBE helper (build URL from FT + account):
+
+```bash
+python -m ethiobank_receipts.cli cbe --ft FT25211G11JQ --account 21827223
+```

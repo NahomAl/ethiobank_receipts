@@ -1,4 +1,5 @@
 import argparse
+import requests
 from ethiobank_receipts import extract_receipt
 
 
@@ -11,7 +12,7 @@ def main():
         )
     )
     parser.add_argument(
-        "bank", choices=["cbe", "dashen", "awash", "boa", "zemen"], help="Bank name")
+        "bank", choices=["cbe", "dashen", "awash", "boa", "zemen", "tele"], help="Bank name")
     # URL is optional if using CBE --ft/--account
     parser.add_argument("url", nargs="?", help="Receipt PDF or HTML URL")
     parser.add_argument("--ft", help="CBE FT reference (e.g., FT25211G11JQ)")
@@ -35,13 +36,13 @@ def main():
         else:
             if not args.url:
                 raise ValueError(
-                    "url is required unless using --ft and --account for CBE"
+                    "url (or ID for tele) is required unless using --ft and --account for CBE"
                 )
             result = extract_receipt(args.bank, args.url)
 
         for k, v in result.items():
             print(f"{k}: {v}")
-    except Exception as e:
+    except (ValueError, requests.RequestException) as e:
         print(f"Error: {e}")
 
 

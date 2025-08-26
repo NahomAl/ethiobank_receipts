@@ -1,11 +1,12 @@
-from .extractors import cbe, dashen, awash, boa, zemen
+from .extractors import cbe, dashen, awash, boa, zemen, tele
 
 EXTRACTORS = {
     "cbe": cbe.extract_cbe_receipt_info,
     "dashen": dashen.extract_dashen_receipt_data,
     "awash": awash.extract_awash_receipt_data,
     "boa": boa.extract_boa_receipt_data,
-    "zemen": zemen.extract_zemen_receipt_data
+    "zemen": zemen.extract_zemen_receipt_data,
+    "tele": tele.extract_tele_receipt_data,
 }
 
 
