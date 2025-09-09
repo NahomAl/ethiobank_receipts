@@ -6,7 +6,7 @@ Optimized for speed and accuracy, `ethiobank-receipts` enables developers to ext
 ---
 
 ## ⚠️ Disclaimer
-This is **not an official API**.  
+This is **not an official Python packages**.  
 I am not affiliated with **Ethio Telecom**, **Telebirr**, or any Ethiopian bank (CBE, Dashen, Awash, BOA, Zemen).  
 
 This package is built purely for **developer utility and research purposes** and works by scraping publicly available receipt data.
