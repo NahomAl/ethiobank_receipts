@@ -243,8 +243,4 @@ Some receipt systems have **regional restrictions**:
 
 ## 📜 License
 
-MIT License — see [LICENSE](./LICENSE).
-
-
-
-
+MIT License — see [LICENSE](https://opensource.org/license/mit).
