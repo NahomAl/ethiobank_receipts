@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ethiobank-receipts"
-version = "0.1.0"
+version = "0.1.1"
 description = "Optimized receipt extraction for Ethiopian banks using connection pooling"
 readme = "README.md"
 license = { text = "MIT" }
